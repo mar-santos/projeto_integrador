@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container">
+    <br>
+    <div class="d-flex justifu-content-center">
+        <h1>Editar Pedido</h1>
+    </div>
+    <hr>
+    <form 
+    action="{{url_for('editar_pedido', id_pedido=pedido.id_pedido)}}" 
+    class="form-control" 
+    method="post">
+        <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Data: </label>
+            <input type="text" class="form-control" name="data_pedido" placeholder="dia/mês/ano" value="{{pedido.data_pedido}}" required>
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Nome: </label>
+            <input type="text" class="form-control" name="nome" value="{{pedido.nome}}" required>
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Endereço: </label>
+            <input type="text" class="form-control" name="endereco" value="{{pedido.endereco}}">
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Telefone: </label>
+            <input type="text" class="form-control" name="telefone" value="{{pedido.telefone}}" required>
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Serviço: </label>
+            <input type="text" class="form-control" name="servico" value="{{pedido.servico}}">
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlInput1" class="form-label">Valor: </label>
+            <input type="text" class="form-control" name="valor" value="{{pedido.valor}}">
+        </div>
+        <input type="submit" class="btn btn-primary" name="cadastrar" value="Finalizar edição">
+    </form>
+</div>
+<br>
+{% if status %}
+    {% if status['type'] == 'sucesso' %}
+    <div class="alert alert-success" role="alert">
+        {{status['message']}}
+    </div>
+    {% else %}
+    <div class="alert alert-danger" role="alert">
+        {{status['message']}}    
+    </div>
+    {% endif %}
+{% endif %}
+{% endblock %}

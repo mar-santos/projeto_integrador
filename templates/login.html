@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<br>
+<div class="container">
+  <h1>Login</h1>
+  <hr>
+  <br>
+  <form action="{{url_for('login')}}" method="post">
+    <div class="row g-3 align-items-center">
+      <div class="col-auto">
+        <label for="username" class="col-form-label">Nome:</label>
+      </div>
+      <div class="col-auto">
+        <input type="text" name="username" class="form-control">
+      </div>
+    </div>
+    <br>
+    <div class="row g-3 align-items-center">
+      <div class="col-auto">
+        <label for="password" class="col-form-label">Senha</label>
+      </div>
+      <div class="col-auto">
+        <input type="password" name="password" class="form-control" aria-describedby="passwordHelpInline">
+      </div>
+      <div class="col-auto">
+        <span id="passwordHelpInline" class="form-text">
+          Deve ter de 8-20 caracteres de comprimento.
+        </span>
+      </div>
+    </div>
+    <br>
+    <input type="submit" class="btn btn-primary" value="Enviar">
+  </form>
+</div>
+{% endblock %}
