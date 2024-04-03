@@ -1,9 +1,36 @@
 {% extends 'base.html' %}
 
 {% block main %}
-    <div class="container">
-        <div class="d-flex justify-content-center">
-            <img src="{{ url_for('static', filename='imagens/Logo_index.png')}}" alt="Logotipo lavanderia">
+<!-------Banner Start------->
+<section>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-7">
+        <div class="container custom-container">
+          <div class="row">
+            <div class="col-md-12">
+              <h2 class="custom-padding">Limpeza de tapetes, sofás e cadeiras</h2>
+              <h6 class="custom-padding2">Mais limpeza, mais saúde!</h6>
+              <p class="banner-text">Com mais de 15 anos de experiência na área de limpeza profissional, a
+                "Personal Limpadora" de São Carlos (SP) se destaca como uma referência confiável e dedicada no cuidado
+                de tapetes e estofados. Fundada com a missão de proporcionar resultados impecáveis e um serviço
+                personalizado, a empresa conquistou a confiança de clientes exigentes ao longo dos anos.</p>
+            </div>
+          </div>
         </div>
+      </div>
+      <div class="col-md-5">
+        <div class="container" style="padding-top: 50px">
+          <div class="card" style="width: 18rem;">
+            <img src="static/imagens/Logo_personal.png" class="card-img-top" alt="...">
+            <div class="card-body">
+              <p class="card-text">Entre em contato pelo botão abaixo e faça um orçamento sem compromisso.</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
+</section>
+<!-------Banner End------->
 {% endblock %}

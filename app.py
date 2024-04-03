@@ -51,6 +51,11 @@ def sobre_nos():
 def servicos():
     return render_template('servicos.html')
 
+@app.route("/contatos")
+def contatos():
+    return render_template('Contatos.html')
+
+
 # Login e senha do administrador
 credenciais_usuarios = {
     "admin": "admin"
