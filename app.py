@@ -5,37 +5,45 @@ from flask import request
 from flask import redirect
 from flask import session
 
+
 app = Flask(__name__)
 app.secret_key = 'b175855202d537a1b07a1cbbee8ffc197e2af9c5289a6adfd4b4aa63c3f77861'
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tapete.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tapete.db" #Associar ao banco de dados tapete.bd
 db = SQLAlchemy()
 db.init_app(app)
 
-# Inicializar Classe e criar banco de dados e tabelas
+
+# Inicializar Classe e criar tabelas
 class Product(db.Model):
     __tablename__ = "pedido"
     id_pedido = db.Column(db.Integer, primary_key=True)
     data_pedido = db.Column(db.String(100))
+    data_entrega = db.Column(db.String(100))
     nome = db.Column(db.String(200), nullable=False)
     endereco = db.Column(db.String(250))
     telefone = db.Column(db.String(100), nullable=False)
     servico = db.Column(db.String(100))
     valor = db.Column(db.Integer)
+    status = db.Column(db.String(30))
 
 def __init__(self,
-             data_pedido: str, 
+             data_pedido: str,
+             data_entrega: str, 
              nome: str, 
              endereco: str,
              telefone: str, 
              servico: str, 
-             valor: int) -> None:
+             valor: int,
+             status: str) -> None:
     
     self.data_pedido = data_pedido
+    self.data_entrega = data_entrega
     self.nome = nome
     self.endereco = endereco
     self.telefone = telefone
     self.servico = servico
     self.valor = valor
+    self.status = status
 
 
 # Definição das rotas estáticas
@@ -43,13 +51,16 @@ def __init__(self,
 def home():
     return render_template('index.html')
 
+
 @app.route("/sobre")
 def sobre_nos():
     return render_template('sobre_nos.html')
 
+
 @app.route("/servicos")
 def servicos():
     return render_template('servicos.html')
+
 
 @app.route("/contatos")
 def contatos():
@@ -61,7 +72,8 @@ credenciais_usuarios = {
     "admin": "admin"
 }
 
-# Login e controle de acesso as áreas restritas
+
+# Controle de acesso as áreas restritas
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -76,6 +88,7 @@ def login():
 
     return render_template('login.html')
 
+
 @app.before_request
 def verificar_autenticacao():
     endpoints_protegidos = ["/cadastrar_pedido", "/listar_pedidos"]
@@ -83,9 +96,11 @@ def verificar_autenticacao():
         if not session.get('logged_in'):
             return redirect("/login")
 
+
 @app.route("/erro_login.html")
 def erro_login():
     return render_template("erro_login.html")
+
 
 # Definição das rotas dinâmicas e CRUD
 @app.route("/listar_pedidos", methods=['GET', 'POST'])
@@ -93,17 +108,20 @@ def listar_pedidos():
     if request.method == "POST":
         termo = request.form["pesquisa"]
         resultado = db.session.execute(db.select(Product).filter(
-            (Product.data_pedido.like(f'%{termo}%')) | 
+            (Product.data_pedido.like(f'%{termo}%')) |
+            (Product.data_entrega.like(f'%{termo}%')) |
             (Product.nome.like(f'%{termo}%')) |
             (Product.endereco.like(f'%{termo}%')) |
             (Product.telefone.like(f'%{termo}%')) |
             (Product.servico.like(f'%{termo}%')) |
-            (Product.valor.like(f'%{termo}%')))
+            (Product.valor.like(f'%{termo}%')) |
+            (Product.status.like(f'%{termo}%')))
         ).scalars()
         return render_template('pedidos.html', pedidos=resultado)
     else:
         pedidos = db.session.execute(db.select(Product)).scalars()
         return render_template('pedidos.html', pedidos=pedidos)
+    
 
 @app.route("/cadastrar_pedido", methods=["GET", "POST"])
 def cadastrar_pedido():
@@ -114,11 +132,13 @@ def cadastrar_pedido():
             #data_pedido = datetime.strptime(dados["data_pedido"], "%Y-%m-%d").strftime("%d/%m/%Y")
             pedido = Product(
                 data_pedido=dados["data_pedido"],
+                data_entrega=dados["data_entrega"],
                 nome=dados["nome"],
                 endereco=dados["endereco"],
                 telefone=dados["telefone"],
                 servico=dados["servico"],
-                valor=(dados["valor"])
+                valor=(dados["valor"]),
+                status=(dados["status"])
             )
             db.session.add(pedido)
             db.session.commit()
@@ -136,11 +156,13 @@ def editar_pedido(id_pedido):
         pedido = db.session.execute(db.select(Product).filter(Product.id_pedido == id_pedido)).scalar()
 
         pedido.data_pedido = dados_editados["data_pedido"]
+        pedido.data_entrega = dados_editados["data_entrega"]
         pedido.nome = dados_editados["nome"]
         pedido.endereco = dados_editados["endereco"]
         pedido.telefone = dados_editados["telefone"]
         pedido.servico = dados_editados["servico"]
         pedido.valor = dados_editados["valor"]
+        pedido.status = dados_editados["status"]
 
         db.session.commit()
         return redirect("/listar_pedidos")
@@ -149,6 +171,7 @@ def editar_pedido(id_pedido):
         pedido_editado = db.session.execute(db.select(Product).filter(Product.id_pedido == id_pedido)).scalar()
         return render_template('editar_pedido.html', pedido=pedido_editado)
 
+
 @app.route("/deletar_pedido/<int:id_pedido>")
 def deletar_pedido(id_pedido):
     pedido_deletado = db.session.execute(db.select(Product).filter(Product.id_pedido == id_pedido)).scalar()
@@ -156,10 +179,12 @@ def deletar_pedido(id_pedido):
     db.session.commit()
     return redirect("/listar_pedidos")
 
+
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
     return redirect('/')
+
 
 if __name__ == "__main__":
     with app.app_context():
