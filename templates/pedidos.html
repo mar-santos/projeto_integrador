@@ -23,8 +23,10 @@
             <tr>
                 <th>Data Pedido</th>
                 <th>Data Entrega</th>
+                <th>Ficha</th>
                 <th>Nome</th>
                 <th>Endereço</th>
+                <th>Cidade</th>
                 <th>Telefone</th>
                 <th>Serviço</th>
                 <th>Valor</th>
@@ -39,8 +41,10 @@
             {% if pedido.status=="devedor" %}class="table-danger"{% endif %}>
                 <td>{{ pedido.data_pedido }}</td>
                 <td>{{ pedido.data_entrega }}</td>
+                <td>{{ pedido.id_ficha }}</td>
                 <td>{{ pedido.nome }}</td>
                 <td>{{ pedido.endereco }}</td>
+                <td>{{ pedido.cidade }}</td>
                 <td>{{ pedido.telefone }}</td>
                 <td>{{ pedido.servico }}</td>
                 <td>{{ pedido.valor }}</td>

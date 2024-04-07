@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container">
+    <br>
+    <h1>Materiais de Consumo</h1>
+    <hr>
+    <br>
+    <form action="{{url_for('cadastrar_despesas')}}" class="form-control" method="post">
+        <div class="row">
+            <div class="col-2">
+                <label for="despesa_data">Data:</label>
+                <input type="text" class="form-control" name="despesa_data" min="" max="" required>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Nome: </label>
+                    <input type="text" class="form-control" name="despesa_nome" placeholder="">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="mb-2">
+                    <label for="exampleFormControlInput1" class="form-label">Quantidade: </label>
+                    <input type="text" class="form-control" name="despesa_qtde" placeholder="">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="mb-2">
+                    <label for="exampleFormControlInput1" class="form-label">Valor (R$): </label>
+                    <input type="text" class="form-control" name="despesa_valor" placeholder="">
+                </div>
+            </div>
+        </div>
+        <br><br>
+        <input type="submit" class="btn btn-primary" name="despesa" value="Cadastrar despesas">
+        <br>
+    </form>
+</div>
+<br>
+{% if status %}
+{% if status['type'] == 'sucesso' %}
+<div class="alert alert-success" role="alert">
+    {{status['message']}}
+</div>
+{% else %}
+<div class="alert alert-danger" role="alert">
+    {{status['message']}}
+</div>
+{% endif %}
+{% endif %}
+
+<!--Troca "," por "." nas entradas do campo valor ao gravar no Banco de Dados-->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelector('form').addEventListener('submit', function () {
+            var valorInput = document.querySelector('input[name="despesa_valor"]');
+            valorInput.value = valorInput.value.replace(',', '.');
+        });
+    });
+</script>
+
+<!--Troca "," por "." nas diferentes entradas do campo valor ao gravar no Banco de Dados
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelector('form').addEventListener('submit', function () {
+            var valorInputs = document.querySelectorAll('input[name^="valor_"]');
+            valorInputs.forEach(function (valorInput) {
+                valorInput.value = valorInput.value.replace(',', '.');
+            });
+        });
+    });
+</script>-->
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+
+{% block main %}
+<div class="container">
+    <br><br>
+    <div class="text-center"">
+        <h1>ERRO 403</h1>
+        <br>
+        <img src=" static/imagens/erro_403.png" alt="Acesso restrito">
+        <br><br>
+        <h2>Você tentou acessar uma página restrita!</h2>
+        <h4>Redirecionado para a página de login...</h4>
+    </div>
+</div>
+
+<!--Redirecionamento para a página de login após 5 milisegundos-->
+<script>
+    setTimeout(function () {
+        window.location.href = "login";
+    }, 5000);
+</script>
+
+{% endblock %}

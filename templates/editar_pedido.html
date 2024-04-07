@@ -9,18 +9,25 @@
     <hr>
     <form action="{{url_for('editar_pedido', id_pedido=pedido.id_pedido)}}" class="form-control" method="post">
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="mb-3">
                     <label for="exampleFormControlInput1" class="form-label">Data Pedido: </label>
                     <input type="text" class="form-control" name="data_pedido" placeholder="dia/mês/ano"
                         value="{{pedido.data_pedido}}" required>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="mb-3">
                     <label for="exampleFormControlInput1" class="form-label">Data Entrega: </label>
                     <input type="text" class="form-control" name="data_entrega" placeholder="dia/mês/ano"
                         value="{{pedido.data_entrega}}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Ficha: </label>
+                    <input type="text" class="form-control" name="id_ficha" placeholder="Ficha número"
+                            value="{{pedido.id_ficha}}">
                 </div>
             </div>
         </div>
@@ -28,21 +35,43 @@
             <label for="exampleFormControlInput1" class="form-label">Nome: </label>
             <input type="text" class="form-control" name="nome" value="{{pedido.nome}}" required>
         </div>
-        <div class="mb-3">
-            <label for="exampleFormControlInput1" class="form-label">Endereço: </label>
-            <input type="text" class="form-control" name="endereco" value="{{pedido.endereco}}">
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Endereço: </label>
+                    <input type="text" class="form-control" name="endereco" value="{{pedido.endereco}}" placeholder="" required>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Cidade: </label>
+                    <input type="text" class="form-control" name="cidade" value="{{pedido.cidade}}" placeholder="">
+                </div>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="exampleFormControlInput1" class="form-label">Telefone: </label>
-            <input type="text" class="form-control" name="telefone" value="{{pedido.telefone}}" required>
-        </div>
-        <div class="mb-3">
-            <label for="exampleFormControlInput1" class="form-label">Serviço: </label>
-            <input type="text" class="form-control" name="servico" value="{{pedido.servico}}">
-        </div>
-        <div class="mb-3">
-            <label for="exampleFormControlInput1" class="form-label">Valor: </label>
-            <input type="text" class="form-control" name="valor" value="{{pedido.valor}}">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Telefone: </label>
+                    <input type="text" class="form-control" name="telefone" placeholder=""
+                        value="{{pedido.telefone}}" required>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Serviço: </label>
+                    <input type="text" class="form-control" name="servico" placeholder=""
+                        value="{{pedido.servico}}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Valor: </label>
+                    <input type="text" class="form-control" name="valor" placeholder=""
+                            value="{{pedido.valor}}">
+                </div>
+            </div>
         </div>
         <div class="form-check form-check-inline">
             <input class="form-check-input" type="radio" name="status" value="devedor" required>
@@ -58,4 +87,14 @@
     </form>
 </div>
 <br>
+
+<!--Troca "," por "." nas entradas do campo valor ao gravar no Banco de Dados-->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('form').addEventListener('submit', function() {
+            var valorInput = document.querySelector('input[name="valor"]');
+            valorInput.value = valorInput.value.replace(',', '.');
+        });
+    });
+</script>
 {% endblock %}

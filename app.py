@@ -4,6 +4,7 @@ from flask import render_template
 from flask import request
 from flask import redirect
 from flask import session
+from datetime import date
 
 
 app = Flask(__name__)
@@ -19,31 +20,56 @@ class Product(db.Model):
     id_pedido = db.Column(db.Integer, primary_key=True)
     data_pedido = db.Column(db.String(100))
     data_entrega = db.Column(db.String(100))
+    id_ficha = db.Column(db. String(30))
     nome = db.Column(db.String(200), nullable=False)
     endereco = db.Column(db.String(250))
+    cidade = db.Column(db.String(50))
     telefone = db.Column(db.String(100), nullable=False)
     servico = db.Column(db.String(100))
-    valor = db.Column(db.Integer)
+    valor = db.Column(db.String(30))
     status = db.Column(db.String(30))
 
 def __init__(self,
              data_pedido: str,
-             data_entrega: str, 
+             data_entrega: str,
+             id_ficha: str, 
              nome: str, 
              endereco: str,
+             cidade: str,
              telefone: str, 
              servico: str, 
-             valor: int,
+             valor: str,
              status: str) -> None:
     
     self.data_pedido = data_pedido
     self.data_entrega = data_entrega
+    self.id_ficha = id_ficha
     self.nome = nome
     self.endereco = endereco
+    self.cidade = cidade
     self.telefone = telefone
     self.servico = servico
     self.valor = valor
     self.status = status
+
+class Product2(db.Model):
+    __tablename__ = "despesa"
+    id_despesa = db.Column(db.Integer, primary_key=True)
+    despesa_data = db.Column(db.String(100))
+    despesa_nome = db.Column(db.String(100))
+    despesa_qtde = db.Column(db.String(100))
+    despesa_valor = db.Column(db.String(100))
+
+def __init__(self,
+             despesa_data: str, 
+             despesa_nome: str, 
+             despesa_qtde: str,
+             despesa_valor: str) -> None:
+    
+    self.despesa_data = despesa_data
+    self.despesa_nome = despesa_nome
+    self.despesa_qtde = despesa_qtde
+    self.despesa_valor = despesa_valor
 
 
 # Definição das rotas estáticas
@@ -91,15 +117,23 @@ def login():
 
 @app.before_request
 def verificar_autenticacao():
-    endpoints_protegidos = ["/cadastrar_pedido", "/listar_pedidos"]
+    endpoints_protegidos = ["/cadastrar_pedido", "/listar_pedidos", "/cadastrar_despesas",]
     if request.path in endpoints_protegidos:
         if not session.get('logged_in'):
-            return redirect("/login")
+            return redirect("/erro_pagina_403")
 
 
 @app.route("/erro_login.html")
 def erro_login():
     return render_template("erro_login.html")
+
+@app.route("/erro_pagina_404")
+def erro_pagina_404():
+    return render_template("erro_pagina_404.html")
+
+@app.route("/erro_pagina_403")
+def erro_pagina_403():
+    return render_template("erro_pagina_403.html")
 
 
 # Definição das rotas dinâmicas e CRUD
@@ -110,8 +144,10 @@ def listar_pedidos():
         resultado = db.session.execute(db.select(Product).filter(
             (Product.data_pedido.like(f'%{termo}%')) |
             (Product.data_entrega.like(f'%{termo}%')) |
+            (Product.id_ficha.like(f'%{termo}%')) |
             (Product.nome.like(f'%{termo}%')) |
             (Product.endereco.like(f'%{termo}%')) |
+            (Product.cidade.like(f'%{termo}%')) |
             (Product.telefone.like(f'%{termo}%')) |
             (Product.servico.like(f'%{termo}%')) |
             (Product.valor.like(f'%{termo}%')) |
@@ -133,8 +169,10 @@ def cadastrar_pedido():
             pedido = Product(
                 data_pedido=dados["data_pedido"],
                 data_entrega=dados["data_entrega"],
+                id_ficha=dados["id_ficha"],
                 nome=dados["nome"],
                 endereco=dados["endereco"],
+                cidade=dados["cidade"],
                 telefone=dados["telefone"],
                 servico=dados["servico"],
                 valor=(dados["valor"]),
@@ -157,8 +195,10 @@ def editar_pedido(id_pedido):
 
         pedido.data_pedido = dados_editados["data_pedido"]
         pedido.data_entrega = dados_editados["data_entrega"]
+        pedido.id_ficha = dados_editados["id_ficha"]
         pedido.nome = dados_editados["nome"]
         pedido.endereco = dados_editados["endereco"]
+        pedido.cidade = dados_editados["cidade"]
         pedido.telefone = dados_editados["telefone"]
         pedido.servico = dados_editados["servico"]
         pedido.valor = dados_editados["valor"]
@@ -178,6 +218,70 @@ def deletar_pedido(id_pedido):
     db.session.delete(pedido_deletado)
     db.session.commit()
     return redirect("/listar_pedidos")
+
+
+@app.route("/listar_despesas", methods=['GET', 'POST'])
+def listar_despesas():
+    if request.method == "POST":
+        termo = request.form["pesquisa"]
+        resultado = db.session.execute(db.select(Product2).filter(
+            (Product2.despesa_data.like(f'%{termo}%')) |
+            (Product2.despesa_nome.like(f'%{termo}%')) |
+            (Product2.despesa_qtde.like(f'%{termo}%')) |
+            (Product2.despesa_valor.like(f'%{termo}%')))
+        ).scalars()
+        return render_template('listar_despesas.html', despesa=resultado)
+    else:
+        despesas = db.session.execute(db.select(Product2)).scalars()
+        return render_template('listar_despesas.html', despesa=despesas)
+
+
+@app.route("/cadastrar_despesas", methods=["GET", "POST"])
+def cadastrar_despesas():
+    if request.method == "POST":
+        status = {"type": "sucesso", "message": "Despesa(s) cadastrada(s) com sucesso!"}
+        try:
+            dados = request.form
+            despesa = Product2(
+                despesa_data=dados["despesa_data"],
+                despesa_nome=dados["despesa_nome"],
+                despesa_qtde=dados["despesa_qtde"],
+                despesa_valor=dados["despesa_valor"],
+            )
+            db.session.add(despesa)
+            db.session.commit()
+            return render_template("cadastrar_despesas.html", status=status)
+        except:
+            status = {"type": "erro", "message": f"Houve um problema ao cadastrar a despesa!"}
+            return render_template("cadastrar_despesas.html", status=status)
+    else:
+        return render_template("cadastrar_despesas.html")
+    
+    
+@app.route("/editar_despesas/<int:id_despesa>", methods=["GET", "POST"])
+def editar_despesas(id_despesa):
+    if request.method == "POST":
+        dados_editados = request.form
+        despesa = db.session.execute(db.select(Product2).filter(Product2.id_despesa == id_despesa)).scalar()
+
+        despesa.despesa_data = dados_editados["despesa_data"]
+        despesa.despesa_nome = dados_editados["despesa_nome"]
+        despesa.despesa_qtde = dados_editados["despesa_qtde"]
+        despesa.despesa_valor = dados_editados["despesa_valor"]
+
+        db.session.commit()
+        return redirect("/listar_despesas")
+    
+    else:
+        despesa_editado = db.session.execute(db.select(Product2).filter(Product2.id_despesa == id_despesa)).scalar()
+        return render_template('editar_despesas.html', despesa=despesa_editado)
+    
+@app.route("/deletar_despesa/<int:id_despesa>")
+def deletar_despesa(id_despesa):
+    despesa_deletado = db.session.execute(db.select(Product2).filter(Product2.id_despesa == id_despesa)).scalar()
+    db.session.delete(despesa_deletado)
+    db.session.commit()
+    return redirect("/listar_despesas")
 
 
 @app.route('/logout')
