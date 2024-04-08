@@ -4,7 +4,6 @@ from flask import render_template
 from flask import request
 from flask import redirect
 from flask import session
-from datetime import date
 
 
 app = Flask(__name__)
@@ -14,7 +13,7 @@ db = SQLAlchemy()
 db.init_app(app)
 
 
-# Inicializar Classe e criar tabelas
+# Inicializar Classe e criar as tabelas pedido e despesas
 class Product(db.Model):
     __tablename__ = "pedido"
     id_pedido = db.Column(db.Integer, primary_key=True)
@@ -55,7 +54,7 @@ def __init__(self,
 class Product2(db.Model):
     __tablename__ = "despesa"
     id_despesa = db.Column(db.Integer, primary_key=True)
-    despesa_data = db.Column(db.String(100))
+    despesa_data = db.Column(db.String(30))
     despesa_nome = db.Column(db.String(100))
     despesa_qtde = db.Column(db.String(100))
     despesa_valor = db.Column(db.String(100))
@@ -93,6 +92,20 @@ def contatos():
     return render_template('Contatos.html')
 
 
+@app.route("/erro_login.html")
+def erro_login():
+    return render_template("erro_login.html")
+
+@app.route("/erro_pagina_404")
+def erro_pagina_404():
+    return render_template("erro_pagina_404.html")
+
+
+@app.route("/erro_pagina_403")
+def erro_pagina_403():
+    return render_template("erro_pagina_403.html")
+
+
 # Login e senha do administrador
 credenciais_usuarios = {
     "admin": "admin"
@@ -117,26 +130,13 @@ def login():
 
 @app.before_request
 def verificar_autenticacao():
-    endpoints_protegidos = ["/cadastrar_pedido", "/listar_pedidos", "/cadastrar_despesas",]
+    endpoints_protegidos = ["/cadastrar_pedido", "/listar_pedidos", "/cadastrar_despesas", "/listar_despesas",]
     if request.path in endpoints_protegidos:
         if not session.get('logged_in'):
             return redirect("/erro_pagina_403")
 
 
-@app.route("/erro_login.html")
-def erro_login():
-    return render_template("erro_login.html")
-
-@app.route("/erro_pagina_404")
-def erro_pagina_404():
-    return render_template("erro_pagina_404.html")
-
-@app.route("/erro_pagina_403")
-def erro_pagina_403():
-    return render_template("erro_pagina_403.html")
-
-
-# Definição das rotas dinâmicas e CRUD
+# Definição das rotas dinâmicas. CRUD de pedidos e despesas
 @app.route("/listar_pedidos", methods=['GET', 'POST'])
 def listar_pedidos():
     if request.method == "POST":
@@ -165,7 +165,6 @@ def cadastrar_pedido():
         status = {"type": "sucesso", "message": "Pedido cadastrado com sucesso!"}
         try:
             dados = request.form
-            #data_pedido = datetime.strptime(dados["data_pedido"], "%Y-%m-%d").strftime("%d/%m/%Y")
             pedido = Product(
                 data_pedido=dados["data_pedido"],
                 data_entrega=dados["data_entrega"],
@@ -186,7 +185,8 @@ def cadastrar_pedido():
             return render_template("cadastrar_pedido.html", status=status)
     else:
         return render_template("cadastrar_pedido.html")
-    
+
+
 @app.route("/editar_pedido/<int:id_pedido>", methods=["GET", "POST"])
 def editar_pedido(id_pedido):
     if request.method == "POST":
@@ -282,6 +282,20 @@ def deletar_despesa(id_despesa):
     db.session.delete(despesa_deletado)
     db.session.commit()
     return redirect("/listar_despesas")
+
+#Ferramenta para busca de despesas entre duas datas (ainda não está funcionando)
+"""@app.route("/search", methods=["GET", "POST"])
+def search():
+    if request.method == "POST":
+        start_date = request.form["start_date"]
+        end_date = request.form["end_date"]
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        result = Product2.query.filter(and_(Product2.despesa_data >= start_date, Product2.despesa_data <= end_date)).all()
+
+        return render_template('search.html', show_results=True, results=result)
+    else:
+        return render_template('search.html', show_results=False)"""
 
 
 @app.route('/logout')

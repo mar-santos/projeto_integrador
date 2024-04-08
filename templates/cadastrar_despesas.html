@@ -3,14 +3,14 @@
 {% block main %}
 <div class="container">
     <br>
-    <h1>Materiais de Consumo</h1>
+    <h1>Cadastrar Materiais de Consumo</h1>
     <hr>
     <br>
     <form action="{{url_for('cadastrar_despesas')}}" class="form-control" method="post">
         <div class="row">
             <div class="col-2">
                 <label for="despesa_data">Data:</label>
-                <input type="text" class="form-control" name="despesa_data" min="" max="" required>
+                <input type="date" class="form-control" name="despesa_data" min="" max="" placeholder="dd/mm/YYYY" required>
             </div>
         </div>
         <br>

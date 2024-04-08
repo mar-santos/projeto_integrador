@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<br>
+<h1>Lista Despesas por Período</h1>
+<hr>
+<br><br>
+<div id="search-form">
+    <h2>Período de Busca</h2>
+    <form action="{{ url_for('search') }}" method="post">
+        <div>
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" required><br><br>
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date" required><br><br>
+        </div>
+        <input type="submit", class="btn btn-primary" action="" name="procurar" value="Pesquisar">
+        <!--<button type="" action="search-form" onclick="showResults()">Search</button>-->
+    </form>
+</div>
+
+<div id="results" name="results" style="display: none;">
+    <h3>Resultado por período</h3>
+    <table border="1">
+        <tr>
+            <th>Data</th>
+            <th>Nome</th>
+            <th>Quantidade</th>
+            <th>Valor (R$)</th>
+        </tr>
+        {% for despesa in results %}
+        <tr>
+            <td>{{ despesa.despesa_data }}</td>
+            <td>{{ despesa.despesa_nome }}</td>
+            <td>{{ despesa.despesa_qtde }}</td>
+            <td>{{ despesa.despesa_valor }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <button onclick="showSearch()">New Search</button>
+</div>
+{% endblock %}
