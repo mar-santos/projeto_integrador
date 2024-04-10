@@ -2,17 +2,15 @@
 
 {% block main %}
 <br>
-<h1>Despesas por período</h1>
+<h1>Listar entregas</h1>
 <hr>
 <br><br>
 <div id="">
-    <h2>Período de Busca</h2>
-    <form action="{{ url_for('search') }}" method="post">
+    <h2>Entregas do dia</h2>
+    <form action="{{ url_for('search_e') }}" method="post">
         <div id="search-form">
-            <label for="start_date">Data inicial: </label>
+            <label for="start_date">Data entrega: </label>
             <input type="date" id="start_date" name="start_date" required><br><br>
-            <label for="end_date">Data final: </label>
-            <input type="date" id="end_date" name="end_date" required><br><br>
         </div>
         <input type="submit" class="btn btn-primary" name="procurar" value="Pesquisar">
     </form>

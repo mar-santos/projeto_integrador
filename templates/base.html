@@ -57,7 +57,6 @@
               <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('login') }}">Login</a>
               </li>
-
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   Cadastro
@@ -81,7 +80,9 @@
                   Relatórios
                 </a>
                 <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="{{ url_for('erro_pagina_404') }}">Despesas por período</a></li>
+                  <li><a class="dropdown-item" href="{{ url_for('search_e') }}">Listar entregas do dia</a></li>
+                  <li><a class="dropdown-item" href="{{ url_for('search_p') }}">Pedidos por período</a></li>
+                  <li><a class="dropdown-item" href="{{ url_for('search') }}">Despesas por período</a></li>
                 </ul>
               </li>
               <li class="nav-item">
@@ -102,20 +103,24 @@
 
       {% endblock %}
     </main>
+  
+
+
+    <!--API WhatsApp-->
+    <div class="whats">
+      <a aria-label="Chat on WhatsApp" href="https://wa.me/5516993367128" target="_blank"><img alt="Chat on WhatsApp"
+          src="static/imagens/botao-whatsapp.png" />
+    </div>
+    <!--Fim do API-->
   </div>
 
 
-  <!--API WhatsApp-->
-  <div class="whats">
-    <a aria-label="Chat on WhatsApp" href="https://wa.me/5516993367128" target="_blank"><img alt="Chat on WhatsApp"
-        src="static/imagens/botao-whatsapp.png" />
-  </div>
-  <!--Fim do API-->
+    <!--Importação do javascript do Bootstrap 5.3-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous">
+    </script>
 
-  <!--Importação do javascript do Bootstrap 5.3-->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-    crossorigin="anonymous"></script>
+
 </body>
-
 </html>
