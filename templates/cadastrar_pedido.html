@@ -1,49 +1,88 @@
 {% extends 'base.html' %}
 
 {% block restrito %}
-<li class="nav-item">
-    <a class="nav-link" href="{{ url_for('cadastrar_pedido') }}">Cadastrar Pedido</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="{{ url_for('listar_pedidos') }}">Listar Pedidos</a>
-</li>
-<li class="nav-item">
-    <a class="nav-link" href="{{ url_for('logout') }}">Sair</a>
-</li>
+
 {% endblock %}
 
 {% block main %}
 <div class="container">
     <br>
-    <div class="d-flex justifu-content-center">
+    <div class="">
         <h1>Cadastrar Pedido</h1>
     </div>
     <hr>
     <form action="{{url_for('cadastrar_pedido')}}" class="form-control" method="post">
-        <div class="mb-3">
-            <label for="exampleFormControlInput1" class="form-label">Data do Pedido: </label>
-            <input type="text" class="form-control" name="data_pedido" placeholder="dia/mês/ano" required>
+        <div class="row">
+            <div class="col-md-2">
+                <div class="mb-2">
+                    <label for="exampleFormControlInput1" class="form-label">Data Pedido: </label>
+                    <input type="date" class="form-control" name="data_pedido" placeholder="dia/mês/ano" required>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="mb-2">
+                    <label for="exampleFormControlInput1" class="form-label">Data Entrega: </label>
+                    <input type="date" class="form-control" name="data_entrega" placeholder="dia/mês/ano">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="mb-2">
+                    <label for="exampleFormControlInput1" class="form-label">Ficha: </label>
+                    <input type="text" class="form-control" name="id_ficha" placeholder="Ficha número">
+                </div>
+            </div>
         </div>
         <div class="mb-3">
             <label for="exampleFormControlInput1" class="form-label">Nome: </label>
             <input type="text" class="form-control" name="nome" required>
         </div>
-        <div class="mb-3">
-            <label for="exampleFormControlInput1" class="form-label">Endereço: </label>
-            <input type="text" class="form-control" name="endereco">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Endereço: </label>
+                    <input type="text" class="form-control" name="endereco" placeholder="" required>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Cidade: </label>
+                    <input type="text" class="form-control" name="cidade" placeholder="">
+                </div>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="exampleFormControlInput1" class="form-label">Telefone: </label>
-            <input type="text" class="form-control" name="telefone" required>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Telefone: </label>
+                    <input type="text" class="form-control" name="telefone" placeholder="" required>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Serviço: </label>
+                    <input type="text" class="form-control" name="servico" placeholder="">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Valor: </label>
+                    <input type="text" class="form-control" name="valor" placeholder="">
+                </div>
+            </div>
         </div>
-        <div class="mb-3">
-            <label for="exampleFormControlInput1" class="form-label">Serviço: </label>
-            <input type="text" class="form-control" name="servico">
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="status" value="devedor" checked>
+            <label class="form-check-label" for="flexRadioDefault1">
+                Devedor
+            </label>
         </div>
-        <div class="mb-3">
-            <label for="exampleFormControlInput1" class="form-label">Valor: </label>
-            <input type="text" class="form-control" name="valor">
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="status" value="pago">
+            <label class="form-check-label" for="flexRadioDefault2">
+                Pago
+            </label>
         </div>
+        <br><br>
         <input type="submit" class="btn btn-primary" name="cadastrar" value="Cadastrar Pedido">
     </form>
 </div>
@@ -59,4 +98,14 @@
 </div>
 {% endif %}
 {% endif %}
+
+<!--Troca "," por "." nas entradas do campo valor ao gravar no Banco de Dados-->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelector('form').addEventListener('submit', function () {
+            var valorInput = document.querySelector('input[name="valor"]');
+            valorInput.value = valorInput.value.replace(',', '.');
+        });
+    });
+</script>
 {% endblock %}

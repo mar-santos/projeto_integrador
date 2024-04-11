@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<br>
+<div id="results" name="results">
+    <h1>Pedidos por período</h1>
+<hr><br>
+    <table class="table table-hover table-sm">
+        
+        <tr>
+            <th>Data Pedido</th>
+            <th>Data Entrega</th>
+            <th>Ficha</th>
+            <th>Nome</th>
+            <th>Endereço</th>
+            <th>Cidade</th>
+            <th>Telefone</th>
+            <th>Serviço</th>
+            <th>Valor</th>
+            <th>Status</th>
+        </tr>
+        {% for pedido in results %}
+        <tr {% if pedido.data_entrega==""%}class="table-warning" {% endif %}
+            {% if pedido.status=="devedor" %}class="table-danger"{% endif %}>
+            <td>{{ pedido.data_pedido }}</td>
+            <td>{{ pedido.data_entrega }}</td>
+            <td>{{ pedido.id_ficha }}</td>
+            <td>{{ pedido.nome }}</td>
+            <td>{{ pedido.endereco }}</td>
+            <td>{{ pedido.cidade }}</td>
+            <td>{{ pedido.telefone }}</td>
+            <td>{{ pedido.servico }}</td>
+            <td>{{ pedido.valor }}</td>
+            <td>{{ pedido.status }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="8"><strong>Total</strong></td>
+            <td><strong>{{ total_value }}</strong></td>
+            <td></td>
+        </tr>
+    </table>
+    <br>
+    <button class="btn btn-primary" onclick="window.location.href='/search_p'">Nova pesquisa</button>
+</div>
+{% endblock %}

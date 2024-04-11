@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<br>
+<div id="results" name="results">
+    <h1>Despesas por período</h1>
+<hr><br>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Nome</th>
+                <th>Quantidade</th>
+                <th>Valor (R$)</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            {% for despesa in results %}
+            <tr>
+                <td>{{ despesa.despesa_data }}</td>
+                <td>{{ despesa.despesa_nome }}</td>
+                <td>{{ despesa.despesa_qtde }}</td>
+                <td>{{ despesa.despesa_valor }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3"><strong>Total</strong></td>
+                <td><strong>{{ total_value }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <button class="btn btn-primary" onclick="window.location.href='/search'">Nova pesquisa</button>
+</div>
+{% endblock %}
