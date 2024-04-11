@@ -55,7 +55,7 @@
                         class="btn btn-secondary btn-sm">Editar</a>
                 </td>
                 <td><a href="{{ url_for('deletar_pedido', id_pedido=pedido.id_pedido)}}"
-                        onclick="return confirm('Deseja realmente deletar esse produto?')"
+                        onclick="return confirm('Deseja realmente deletar esse pedido?')"
                         class="btn btn-danger btn-sm">Deletar</a></td>
             </tr>
             {% endfor %}
