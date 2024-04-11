@@ -11,7 +11,6 @@ from datetime import datetime
 from datetime import timedelta
 from decimal import Decimal, ROUND_HALF_UP
 
-
 app = Flask(__name__)
 app.secret_key = 'b175855202d537a1b07a1cbbee8ffc197e2af9c5289a6adfd4b4aa63c3f77861'
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tapete.db" #Associar ao banco de dados tapete.bd
@@ -136,7 +135,7 @@ def login():
 
 @app.before_request
 def verificar_autenticacao():
-    endpoints_protegidos = ["/cadastrar_pedido", "/listar_pedidos", "/cadastrar_despesas", "/listar_despesas","/search", "/search_pedidos",]
+    endpoints_protegidos = ["/cadastrar_pedido", "/listar_pedidos", "/cadastrar_despesas", "/listar_despesas","/search", "/search_p", "/search_e"]
     if request.path in endpoints_protegidos:
         if not session.get('logged_in'):
             return redirect("/erro_pagina_403")
@@ -316,7 +315,8 @@ def search_e():
         for entrega in result:
             entrega.valor_formatted = '{:,.2f}'.format(entrega.valor)
 
-        return render_template('result_e.html', show_results=True, results=result, total_value=total_value_formatted)
+
+        return render_template('result_e.html', show_results=True, results=result, total_value=total_value_formatted,)
     else:
         return render_template('search_e.html', show_results=False)
 
@@ -423,7 +423,6 @@ def search():
         return render_template('result.html', show_results=True, results=result, total_value=total_value_formatted)
     else:
         return render_template('search.html', show_results=False)
-
 
 
 @app.route('/logout')
