@@ -390,4 +390,4 @@ def logout():
 if __name__ == "__main__":
     with app.app_context():
         db.create_all() # Criação do BD caso o mesmo não exista
-        app.run(debug=True)
+        app.run(debug=False)
