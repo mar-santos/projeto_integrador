@@ -296,11 +296,9 @@ def search_e():
         start_date = request.form["start_date"]
         start_date = datetime.strptime(start_date, '%Y-%m-%d')
         start_date = start_date - timedelta(days=1)
-        # Calcula a data de término do dia para incluir entregas até o final do dia
         end_date = start_date + timedelta(days=1)
 
         result = Product.query.filter(and_(Product.data_entrega >= start_date, Product.data_entrega < end_date)).all()
-
         total_value = db.session.query(func.sum(Product.valor)).filter(and_(Product.data_entrega >= start_date, Product.data_entrega < end_date)).scalar()
 
         # Converte total_value para Decimal
@@ -315,7 +313,6 @@ def search_e():
         for entrega in result:
             entrega.valor_formatted = '{:,.2f}'.format(entrega.valor)
 
-
         return render_template('result_e.html', show_results=True, results=result, total_value=total_value_formatted,)
     else:
         return render_template('search_e.html', show_results=False)
@@ -328,101 +325,60 @@ def search_p():
         start_date = request.form["start_date"]
         end_date = request.form["end_date"]
 
-        if start_date == end_date:
-            start_date = datetime.strptime(start_date, '%Y-%m-%d')
-            end_date = datetime.strptime(end_date, '%Y-%m-%d')
-            start_date = start_date - timedelta(days=1)
-            end_date = start_date + timedelta(days=1)
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        start_date = start_date - timedelta(days=1)
+        result = Product.query.filter(and_(Product.data_pedido >= start_date, Product.data_pedido <= end_date)).all()
+        total_value = db.session.query(func.sum(Product.valor)).filter(and_(Product.data_pedido >= start_date, Product.data_pedido <= end_date)).scalar()
 
-            result = Product.query.filter(and_(Product.data_pedido >= start_date, Product.data_pedido <= end_date)).all()
+        # Converte total_value para Decimal
+        total_value = Decimal(total_value or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
-            total_value = db.session.query(func.sum(Product.valor)).filter(and_(Product.data_pedido >= start_date, Product.data_pedido <= end_date)).scalar()
+        # Converte os valores de despesa_valor dos registros para Decimal e arredonda
+        for pedido in result:
+            pedido.valor = Decimal(pedido.valor or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
-            # Converte total_value para Decimal
-            total_value = Decimal(total_value or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-
-            # Converte os valores de despesa_valor dos registros para Decimal e arredonda
-            for pedido in result:
-                pedido.valor = Decimal(pedido.valor or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-
-            # Formata os valores com ponto para separar os milhares
-            total_value_formatted = '{:,.2f}'.format(total_value)
-            for pedido in result:
-                pedido.valor_formatted = '{:,.2f}'.format(pedido.valor)
-
-        else:
-            start_date = datetime.strptime(start_date, '%Y-%m-%d')
-            end_date = datetime.strptime(end_date, '%Y-%m-%d')
-
-            result = Product.query.filter(and_(Product.data_pedido >= start_date, Product.data_pedido <= end_date)).all()
-
-            total_value = db.session.query(func.sum(Product.valor)).filter(and_(Product.data_pedido >= start_date, Product.data_pedido <= end_date)).scalar()
-
-            # Converte total_value para Decimal
-            total_value = Decimal(total_value or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-
-            # Converte os valores de despesa_valor dos registros para Decimal e arredonda
-            for pedido in result:
-                pedido.valor = Decimal(pedido.valor or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-
-            # Formata os valores com ponto para separar os milhares
-            total_value_formatted = '{:,.2f}'.format(total_value)
-            for pedido in result:
-                pedido.valor_formatted = '{:,.2f}'.format(pedido.valor)
+        # Formata os valores com ponto para separar os milhares
+        total_value_formatted = '{:,.2f}'.format(total_value)
+        for pedido in result:
+            pedido.valor_formatted = '{:,.2f}'.format(pedido.valor)
 
         return render_template('result_p.html', show_results=True, results=result, total_value=total_value_formatted)
+
     else:
         return render_template('search_p.html', show_results=False)
 
     
 
 #Ferramenta para busca de despesas entre duas datas
-@app.route("/search", methods=["GET", "POST"])
-def search():
+@app.route("/search_d", methods=["GET", "POST"])
+def search_d():
     if request.method == "POST":
         start_date = request.form["start_date"]
         end_date = request.form["end_date"]
-        if start_date == end_date:
-            start_date = datetime.strptime(start_date, '%Y-%m-%d')
-            end_date = datetime.strptime(end_date, '%Y-%m-%d')
-            start_date = start_date - timedelta(days=1)
-            end_date = start_date + timedelta(days=1)
-            result = Product2.query.filter(and_(Product2.despesa_data >= start_date, Product2.despesa_data <= end_date)).all()
-            total_value = db.session.query(func.sum(Product2.despesa_valor)).filter(and_(Product2.despesa_data >= start_date, Product2.despesa_data <= end_date)).scalar()
+    
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        start_date = start_date - timedelta(days=1)
+        result = Product2.query.filter(and_(Product2.despesa_data >= start_date, Product2.despesa_data <= end_date)).all()
+        total_value = db.session.query(func.sum(Product2.despesa_valor)).filter(and_(Product2.despesa_data >= start_date, Product2.despesa_data <= end_date)).scalar()
 
-            # Converte total_value para Decimal
-            total_value = Decimal(total_value or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        # Converte total_value para Decimal
+        total_value = Decimal(total_value or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
-            # Converte os valores de despesa_valor dos registros para Decimal e arredonda
-            for despesa in result:
-                despesa.despesa_valor = Decimal(despesa.despesa_valor or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        # Converte os valores de despesa_valor dos registros para Decimal e arredonda
+        for despesa in result:
+            despesa.despesa_valor = Decimal(despesa.despesa_valor or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
-            # Formata os valores com ponto para separar os milhares
-                total_value_formatted = '{:,.2f}'.format(total_value)
-                for despesa in result:
-                    despesa.despesa_valor_formatted = '{:,.2f}'.format(despesa.despesa_valor)
-        else:
-                start_date = datetime.strptime(start_date, '%Y-%m-%d')
-                end_date = datetime.strptime(end_date, '%Y-%m-%d')
-                result = Product2.query.filter(and_(Product2.despesa_data >= start_date, Product2.despesa_data <= end_date)).all()
+        # Formata os valores com ponto para separar os milhares
+        total_value_formatted = '{:,.2f}'.format(total_value)
+        for despesa in result:
+            despesa.despesa_valor_formatted = '{:,.2f}'.format(despesa.despesa_valor)
 
-                total_value = db.session.query(func.sum(Product2.despesa_valor)).filter(and_(Product2.despesa_data >= start_date, Product2.despesa_data <= end_date)).scalar()
-
-                # Converte total_value para Decimal
-                total_value = Decimal(total_value or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-
-                # Converte os valores de despesa_valor dos registros para Decimal e arredonda
-                for despesa in result:
-                    despesa.despesa_valor = Decimal(despesa.despesa_valor or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-
-                # Formata os valores com ponto para separar os milhares
-                total_value_formatted = '{:,.2f}'.format(total_value)
-                for despesa in result:
-                    despesa.despesa_valor_formatted = '{:,.2f}'.format(despesa.despesa_valor)
-
-        return render_template('result.html', show_results=True, results=result, total_value=total_value_formatted)
+        return render_template('result_d.html', show_results=True, results=result, total_value=total_value_formatted)
+        
     else:
-        return render_template('search.html', show_results=False)
+        return render_template('search_d.html', show_results=False)
 
 
 @app.route('/logout')
@@ -434,4 +390,4 @@ def logout():
 if __name__ == "__main__":
     with app.app_context():
         db.create_all() # Criação do BD caso o mesmo não exista
-        app.run(debug=True)
+        app.run(debug=False)
