@@ -1,6 +1,6 @@
 body{
     background-color: #2A3A59;
-    color: whitesmoke;
+    color: #F2F2F2;
 }
 
 .custom-padding {
@@ -14,7 +14,7 @@ body{
 .whats {
     position: fixed;
     bottom: 30px;
-    right: 30px;
+    right: 20px;
     z-index: 999
 }
     

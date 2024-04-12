@@ -80,13 +80,13 @@
                 </div>
             </div>
         </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="status" value="devedor" required>
-            <label class="form-check-label" for="flexRadioDefault1">Não Pago</label>
-        </div>
-        <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="status" value="pago">
-            <label class="form-check-label" for="flexRadioDefault2">Pago</label>
+            <div class="col-md-2">
+                <div class="mb-2">
+                    <label for="exampleFormControlInput1" class="form-label">Status (devedor/pago): </label>
+                    <input type="text" class="form-control" name="status" placeholder="devedor/pago"
+                            value="{{pedido.status}}">
+                </div>
+            </div>
         </div>
         <br>
         <br>

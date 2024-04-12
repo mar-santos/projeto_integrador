@@ -296,6 +296,36 @@ def deletar_despesa(id_despesa):
     return redirect("/listar_despesas")
 
 
+#Ferramenta para busca de retiradas em uma data específica
+@app.route("/search_r", methods=["GET", "POST"])
+def search_r():
+    if request.method == "POST":
+        start_date = request.form["start_date"]
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        start_date = start_date - timedelta(days=1)
+        end_date = start_date + timedelta(days=1)
+
+        result = Product.query.filter(and_(Product.data_retirada >= start_date, Product.data_retirada < end_date)).all()
+        total_value = db.session.query(func.sum(Product.valor)).filter(and_(Product.data_retirada >= start_date, Product.data_retirada < end_date)).scalar()
+
+        # Converte total_value para Decimal
+        total_value = Decimal(total_value or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+        # Converte os valores de valor dos pedidos para Decimal e arredonda
+        for entrega in result:
+            entrega.valor = Decimal(entrega.valor or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+        # Formata os valores com ponto para separar os milhares
+        total_value_formatted = '{:,.2f}'.format(total_value)
+        for entrega in result:
+            entrega.valor_formatted = '{:,.2f}'.format(entrega.valor)
+
+        return render_template('result_r.html', show_results=True, results=result, total_value=total_value_formatted,)
+    else:
+        return render_template('search_r.html', show_results=False)
+
+
+
 #Ferramenta para busca de entrega em uma data específica
 @app.route("/search_e", methods=["GET", "POST"])
 def search_e():
