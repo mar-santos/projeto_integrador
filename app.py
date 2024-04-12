@@ -22,8 +22,9 @@ db.init_app(app)
 class Product(db.Model):
     __tablename__ = "pedido"
     id_pedido = db.Column(db.Integer, primary_key=True)
-    data_pedido = db.Column(db.String(100))
-    data_entrega = db.Column(db.String(100))
+    data_pedido = db.Column(db.String(30))
+    data_retirada = db.Column(db.String(30))
+    data_entrega = db.Column(db.String(30))
     id_ficha = db.Column(db. String(30))
     nome = db.Column(db.String(200), nullable=False)
     endereco = db.Column(db.String(250))
@@ -35,6 +36,7 @@ class Product(db.Model):
 
 def __init__(self,
              data_pedido: str,
+             data_retirada: str,
              data_entrega: str,
              id_ficha: str, 
              nome: str, 
@@ -46,6 +48,7 @@ def __init__(self,
              status: str) -> None:
     
     self.data_pedido = data_pedido
+    self.data_retirada = data_retirada
     self.data_entrega = data_entrega
     self.id_ficha = id_ficha
     self.nome = nome
@@ -141,29 +144,7 @@ def verificar_autenticacao():
             return redirect("/erro_pagina_403")
 
 
-# Definição das rotas dinâmicas. CRUD de pedidos e despesas
-@app.route("/listar_pedidos", methods=['GET', 'POST'])
-def listar_pedidos():
-    if request.method == "POST":
-        termo = request.form["pesquisa"]
-        resultado = db.session.execute(db.select(Product).filter(
-            (Product.data_pedido.like(f'%{termo}%')) |
-            (Product.data_entrega.like(f'%{termo}%')) |
-            (Product.id_ficha.like(f'%{termo}%')) |
-            (Product.nome.like(f'%{termo}%')) |
-            (Product.endereco.like(f'%{termo}%')) |
-            (Product.cidade.like(f'%{termo}%')) |
-            (Product.telefone.like(f'%{termo}%')) |
-            (Product.servico.like(f'%{termo}%')) |
-            (Product.valor.like(f'%{termo}%')) |
-            (Product.status.like(f'%{termo}%')))
-        ).scalars()
-        return render_template('pedidos.html', pedidos=resultado)
-    else:
-        pedidos = db.session.execute(db.select(Product)).scalars()
-        return render_template('pedidos.html', pedidos=pedidos)
-    
-
+# Definição das rotas dinâmicas. CRUD de pedidos
 @app.route("/cadastrar_pedido", methods=["GET", "POST"])
 def cadastrar_pedido():
     if request.method == "POST":
@@ -172,6 +153,7 @@ def cadastrar_pedido():
             dados = request.form
             pedido = Product(
                 data_pedido=dados["data_pedido"],
+                data_retirada=dados["data_retirada"],
                 data_entrega=dados["data_entrega"],
                 id_ficha=dados["id_ficha"],
                 nome=dados["nome"],
@@ -192,6 +174,29 @@ def cadastrar_pedido():
         return render_template("cadastrar_pedido.html")
 
 
+@app.route("/listar_pedidos", methods=['GET', 'POST'])
+def listar_pedidos():
+    if request.method == "POST":
+        termo = request.form["pesquisa"]
+        resultado = db.session.execute(db.select(Product).filter(
+            (Product.data_pedido.like(f'%{termo}%')) |
+            (Product.data_retirada.like(f'%{termo}%')) |
+            (Product.data_entrega.like(f'%{termo}%')) |
+            (Product.id_ficha.like(f'%{termo}%')) |
+            (Product.nome.like(f'%{termo}%')) |
+            (Product.endereco.like(f'%{termo}%')) |
+            (Product.cidade.like(f'%{termo}%')) |
+            (Product.telefone.like(f'%{termo}%')) |
+            (Product.servico.like(f'%{termo}%')) |
+            (Product.valor.like(f'%{termo}%')) |
+            (Product.status.like(f'%{termo}%')))
+        ).scalars()
+        return render_template('pedidos.html', pedidos=resultado)
+    else:
+        pedidos = db.session.execute(db.select(Product)).scalars()
+        return render_template('pedidos.html', pedidos=pedidos)
+
+
 @app.route("/editar_pedido/<int:id_pedido>", methods=["GET", "POST"])
 def editar_pedido(id_pedido):
     if request.method == "POST":
@@ -199,6 +204,7 @@ def editar_pedido(id_pedido):
         pedido = db.session.execute(db.select(Product).filter(Product.id_pedido == id_pedido)).scalar()
 
         pedido.data_pedido = dados_editados["data_pedido"]
+        pedido.data_retirada = dados_editados["data_retirada"]
         pedido.data_entrega = dados_editados["data_entrega"]
         pedido.id_ficha = dados_editados["id_ficha"]
         pedido.nome = dados_editados["nome"]
@@ -225,22 +231,7 @@ def deletar_pedido(id_pedido):
     return redirect("/listar_pedidos")
 
 
-@app.route("/listar_despesas", methods=['GET', 'POST'])
-def listar_despesas():
-    if request.method == "POST":
-        termo = request.form["pesquisa"]
-        resultado = db.session.execute(db.select(Product2).filter(
-            (Product2.despesa_data.like(f'%{termo}%')) |
-            (Product2.despesa_nome.like(f'%{termo}%')) |
-            (Product2.despesa_qtde.like(f'%{termo}%')) |
-            (Product2.despesa_valor.like(f'%{termo}%')))
-        ).scalars()
-        return render_template('listar_despesas.html', despesa=resultado)
-    else:
-        despesas = db.session.execute(db.select(Product2)).scalars()
-        return render_template('listar_despesas.html', despesa=despesas)
-
-
+# Definição das rotas dinâmicas. CRUD de despesas
 @app.route("/cadastrar_despesas", methods=["GET", "POST"])
 def cadastrar_despesas():
     if request.method == "POST":
@@ -261,6 +252,22 @@ def cadastrar_despesas():
             return render_template("cadastrar_despesas.html", status=status)
     else:
         return render_template("cadastrar_despesas.html")
+
+
+@app.route("/listar_despesas", methods=['GET', 'POST'])
+def listar_despesas():
+    if request.method == "POST":
+        termo = request.form["pesquisa"]
+        resultado = db.session.execute(db.select(Product2).filter(
+            (Product2.despesa_data.like(f'%{termo}%')) |
+            (Product2.despesa_nome.like(f'%{termo}%')) |
+            (Product2.despesa_qtde.like(f'%{termo}%')) |
+            (Product2.despesa_valor.like(f'%{termo}%')))
+        ).scalars()
+        return render_template('listar_despesas.html', despesa=resultado)
+    else:
+        despesas = db.session.execute(db.select(Product2)).scalars()
+        return render_template('listar_despesas.html', despesa=despesas)
     
     
 @app.route("/editar_despesas/<int:id_despesa>", methods=["GET", "POST"])
@@ -390,4 +397,4 @@ def logout():
 if __name__ == "__main__":
     with app.app_context():
         db.create_all() # Criação do BD caso o mesmo não exista
-        app.run(debug=False)
+        app.run(debug=True)
