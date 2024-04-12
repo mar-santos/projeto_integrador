@@ -138,7 +138,7 @@ def login():
 
 @app.before_request
 def verificar_autenticacao():
-    endpoints_protegidos = ["/cadastrar_pedido", "/listar_pedidos", "/cadastrar_despesas", "/listar_despesas","/search", "/search_p", "/search_e"]
+    endpoints_protegidos = ["/cadastrar_pedido", "/listar_pedidos", "/cadastrar_despesas", "/listar_despesas","/search", "/search_p", "/search_e", "/search_r"]
     if request.path in endpoints_protegidos:
         if not session.get('logged_in'):
             return redirect("/erro_pagina_403")
