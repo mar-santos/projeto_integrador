@@ -94,7 +94,7 @@ def servicos():
 
 @app.route("/contatos")
 def contatos():
-    return render_template('Contatos.html')
+    return render_template('contatos.html')
 
 
 @app.route("/erro_login.html")
