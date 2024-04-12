@@ -23,8 +23,9 @@
     <table class="table table-striped">
         <thead>
             <tr>
-                <th>Data Pedido</th>
-                <th>Data Entrega</th>
+                <th>Pedido</th>
+                <th>Retirada</th>
+                <th>Entrega</th>
                 <th>Ficha</th>
                 <th>Nome</th>
                 <th>Endereço</th>
@@ -32,16 +33,17 @@
                 <th>Telefone</th>
                 <th>Serviço</th>
                 <th>Valor</th>
-                <th>Status</th>
                 <th>Editar</th>
                 <th>Apagar</th>
             </tr>
         </thead>
         <tbody class="table-group-divider">
             {% for pedido in pedidos %}
-            <tr {% if pedido.data_entrega==""%}class="table-warning" {% endif %}
+            <tr {% if pedido.data_retirada==""%}class="table-success" {% endif %}
+            {% if pedido.data_entrega ==""%}class="table-warning" {% endif %}
             {% if pedido.status=="devedor" %}class="table-danger"{% endif %}>
                 <td>{{ pedido.data_pedido }}</td>
+                <td>{{ pedido.data_retirada }}</td>
                 <td>{{ pedido.data_entrega }}</td>
                 <td>{{ pedido.id_ficha }}</td>
                 <td>{{ pedido.nome }}</td>
@@ -50,7 +52,6 @@
                 <td>{{ pedido.telefone }}</td>
                 <td>{{ pedido.servico }}</td>
                 <td>{{ pedido.valor }}</td>
-                <td>{{ pedido.status }}</td>
                 <td><a href="{{ url_for('editar_pedido', id_pedido=pedido.id_pedido)}}"
                         class="btn btn-secondary btn-sm">Editar</a>
                 </td>
