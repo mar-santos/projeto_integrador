@@ -41,7 +41,7 @@
             {% for pedido in pedidos %}
             <tr {% if pedido.data_retirada==""%}class="table-success" {% endif %}
             {% if pedido.data_entrega ==""%}class="table-warning" {% endif %}
-            {% if pedido.status=="devedor" %}class="table-danger"{% endif %}>
+            {% if pedido.status=="devedor" or pedido.status=="Devedor" %}class="table-danger"{% endif %}>
                 <td>{{ pedido.data_pedido }}</td>
                 <td>{{ pedido.data_retirada }}</td>
                 <td>{{ pedido.data_entrega }}</td>

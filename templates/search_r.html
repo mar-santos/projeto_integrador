@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<br>
+<h1>Listar retiradas programadas</h1>
+<hr>
+<br><br>
+<div id="">
+    <h2>Entregas do dia</h2>
+    <br>
+    <form action="{{ url_for('search_r') }}" method="post">
+        <div id="search-form">
+            <label for="start_date">Data da retirada: </label>
+            <input type="date" id="start_date" name="start_date" required><br><br>
+        </div>
+        <input type="submit" class="btn btn-primary" name="procurar" value="Pesquisar">
+    </form>
+</div>
+{% endblock %}
