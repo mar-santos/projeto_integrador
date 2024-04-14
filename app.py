@@ -172,6 +172,29 @@ def cadastrar_pedido():
             return render_template("cadastrar_pedido.html", status=status)
     else:
         return render_template("cadastrar_pedido.html")
+    
+@app.route("/calculadora", methods=['GET', 'POST'])
+def calculadora():
+    if request.method == "POST":
+
+        valor_final = 0.00
+
+        quadrado = request.form['formato_tapete']
+
+        if (quadrado == 'True'):
+            largura_tapete = float(request.form['largura_tapete'])
+            altura_tapete = float(request.form['altura_tapete'])
+            valor_tapete = (largura_tapete * altura_tapete) * 25.00
+            valor_final += valor_tapete
+        else:
+            largura_tapete = float(request.form['largura_tapete'])
+            altura_tapete = float(request.form['altura_tapete'])
+            valor_tapete = (3.14 * ((largura_tapete/2) * (largura_tapete/2))) * 25.00
+            valor_final += valor_tapete
+
+        return render_template("calculadora.html", valor_final = round(valor_final,2))
+    else:
+        return render_template("calculadora.html")
 
 
 @app.route("/listar_pedidos", methods=['GET', 'POST'])

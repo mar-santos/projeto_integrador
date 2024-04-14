@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<!-------Banner Start------->
+<section>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-7">
+        <div class="container custom-container">
+          <div class="row">
+            <div class="col-md-12">
+              <br>
+    <form action="{{ url_for('calculadora') }}" name="calculadora" method="post">
+        <h5>Escolha um formato de Tapete:</h5>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="formato_tapete" value="True" checked>
+            <label class="form-check-label" for="formato_tapete">
+                Retangular/Quadrado
+            </label>
+        </div>
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="formato_tapete" value="False">
+            <label class="form-check-label" for="formato_tapete">
+                Redondo
+            </label>
+        </div>
+        <br><br>
+        <div class="col-3">
+            <div class="mb-3">
+                <label for="largura_tapete" class="form-label">Largura do Tapete (metros)</label>
+                <input type="text" class="form-control" name="largura_tapete" id="largura_tapete" required>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="mb-3">
+                <label for="altura_tapete" class="form-label">Altura do Tapete (metros)</label>
+                <input type="text" class="form-control" name="altura_tapete" id="altura_tapete" required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Calcular</button>
+        <button class="btn btn-primary" onclick="window.location.href='/cadastrar_pedido'">Cadastrar pedido</button>
+    </form>
+    <br>
+    {% if valor_final is not none %}
+    <h2>Valor Total: R$ {{ valor_final }}</h2>
+    {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--<div class="col-md-5">
+        <div class="container" style="padding-top: 50px">
+          <div class="card" style="width: 18rem;">
+            <div>
+              <img src="" alt=""> 
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>-->
+</section>
+<!-------Banner End------->
+<!--Troca "," por "." nas entradas do campo valor ao gravar no Banco de Dados-->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      document.querySelector('form').addEventListener('submit', function () {
+          var valorInput = document.querySelector('input[name="largura_tapete"]');
+          valorInput.value = valorInput.value.replace(',', '.');
+      });
+  });
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+      document.querySelector('form').addEventListener('submit', function () {
+          var valorInput = document.querySelector('input[name="altura_tapete"]');
+          valorInput.value = valorInput.value.replace(',', '.');
+      });
+  });
+</script>
+{% endblock %}
