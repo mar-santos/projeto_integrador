@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_
 from sqlalchemy import or_
 from sqlalchemy import func
+from sqlalchemy import update
+from sqlalchemy import desc
 from flask import render_template
 from flask import request
 from flask import redirect
@@ -33,6 +35,7 @@ class Product(db.Model):
     servico = db.Column(db.String(100))
     valor = db.Column(db.String(30))
     status = db.Column(db.String(30))
+    deletar = db.Column(db.String(5))
 
 def __init__(self,
              data_pedido: str,
@@ -45,7 +48,8 @@ def __init__(self,
              telefone: str, 
              servico: str, 
              valor: str,
-             status: str) -> None:
+             status: str,
+             deletar: str) -> None:
     
     self.data_pedido = data_pedido
     self.data_retirada = data_retirada
@@ -58,6 +62,7 @@ def __init__(self,
     self.servico = servico
     self.valor = valor
     self.status = status
+    self.deletar = deletar
 
 class Product2(db.Model):
     __tablename__ = "despesa"
@@ -66,17 +71,20 @@ class Product2(db.Model):
     despesa_nome = db.Column(db.String(100))
     despesa_qtde = db.Column(db.String(100))
     despesa_valor = db.Column(db.String(100))
+    despesa_deletar = db.Column(db.String(5))
 
 def __init__(self,
              despesa_data: str, 
              despesa_nome: str, 
              despesa_qtde: str,
-             despesa_valor: str) -> None:
+             despesa_valor: str,
+             despesa_deletar: str) -> None:
     
     self.despesa_data = despesa_data
     self.despesa_nome = despesa_nome
     self.despesa_qtde = despesa_qtde
     self.despesa_valor = despesa_valor
+    self.despesa.deletar = despesa_deletar
 
 
 # Definição das rotas estáticas
@@ -138,7 +146,14 @@ def login():
 
 @app.before_request
 def verificar_autenticacao():
-    endpoints_protegidos = ["/cadastrar_pedido", "/listar_pedidos", "/cadastrar_despesas", "/listar_despesas","/search_d", "/search_p", "/search_e", "/search_r",]
+    endpoints_protegidos = ["/cadastrar_pedido", 
+                            "/listar_pedidos", 
+                            "/cadastrar_despesas", 
+                            "/listar_despesas",
+                            "/search_e",
+                            "/search_p",
+                            "/search_r",
+                            "/search_d",]
     if request.path in endpoints_protegidos:
         if not session.get('logged_in'):
             return redirect("/erro_pagina_403")
@@ -162,7 +177,8 @@ def cadastrar_pedido():
                 telefone=dados["telefone"],
                 servico=dados["servico"],
                 valor=(dados["valor"]),
-                status=(dados["status"])
+                status=(dados["status"]),
+                deletar=(dados["deletar"])
             )
             db.session.add(pedido)
             db.session.commit()
@@ -201,22 +217,31 @@ def calculadora():
 def listar_pedidos():
     if request.method == "POST":
         termo = request.form["pesquisa"]
-        resultado = db.session.execute(db.select(Product).filter(
-            (Product.data_pedido.like(f'%{termo}%')) |
-            (Product.data_retirada.like(f'%{termo}%')) |
-            (Product.data_entrega.like(f'%{termo}%')) |
-            (Product.id_ficha.like(f'%{termo}%')) |
-            (Product.nome.like(f'%{termo}%')) |
-            (Product.endereco.like(f'%{termo}%')) |
-            (Product.cidade.like(f'%{termo}%')) |
-            (Product.telefone.like(f'%{termo}%')) |
-            (Product.servico.like(f'%{termo}%')) |
-            (Product.valor.like(f'%{termo}%')) |
-            (Product.status.like(f'%{termo}%')))
+        resultado = db.session.execute(
+            db.select(Product)
+            .filter(
+                ((Product.data_pedido.like(f'%{termo}%')) |
+                 (Product.data_retirada.like(f'%{termo}%')) |
+                 (Product.data_entrega.like(f'%{termo}%')) |
+                 (Product.id_ficha.like(f'%{termo}%')) |
+                 (Product.nome.like(f'%{termo}%')) |
+                 (Product.endereco.like(f'%{termo}%')) |
+                 (Product.cidade.like(f'%{termo}%')) |
+                 (Product.telefone.like(f'%{termo}%')) |
+                 (Product.servico.like(f'%{termo}%')) |
+                 (Product.valor.like(f'%{termo}%')) |
+                 (Product.status.like(f'%{termo}%'))) &
+                (Product.deletar != "0")
+            )
+            .order_by(desc(Product.data_pedido))  # Ordena por data_pedido do mais recente para o mais antigo
         ).scalars()
         return render_template('pedidos.html', pedidos=resultado)
     else:
-        pedidos = db.session.execute(db.select(Product)).scalars()
+        pedidos = db.session.execute(
+            db.select(Product)
+            .filter(Product.deletar == "1")
+            .order_by(desc(Product.data_pedido))  # Ordena por data_pedido do mais recente para o mais antigo
+        ).scalars()
         return render_template('pedidos.html', pedidos=pedidos)
 
 
@@ -248,8 +273,13 @@ def editar_pedido(id_pedido):
 
 @app.route("/deletar_pedido/<int:id_pedido>")
 def deletar_pedido(id_pedido):
-    pedido_deletado = db.session.execute(db.select(Product).filter(Product.id_pedido == id_pedido)).scalar()
-    db.session.delete(pedido_deletado)
+    pedido_atualizado = db.session.execute(
+        update(Product)
+        .where(Product.id_pedido == id_pedido)
+        .values(deletar=0)
+        .returning(Product)
+    ).scalar()
+    
     db.session.commit()
     return redirect("/listar_pedidos")
 
@@ -266,6 +296,7 @@ def cadastrar_despesas():
                 despesa_nome=dados["despesa_nome"],
                 despesa_qtde=dados["despesa_qtde"],
                 despesa_valor=dados["despesa_valor"],
+                despesa_deletar=dados["despesa_deletar"]
             )
             db.session.add(despesa)
             db.session.commit()
@@ -282,14 +313,20 @@ def listar_despesas():
     if request.method == "POST":
         termo = request.form["pesquisa"]
         resultado = db.session.execute(db.select(Product2).filter(
-            (Product2.despesa_data.like(f'%{termo}%')) |
+            ((Product2.despesa_data.like(f'%{termo}%')) |
             (Product2.despesa_nome.like(f'%{termo}%')) |
             (Product2.despesa_qtde.like(f'%{termo}%')) |
-            (Product2.despesa_valor.like(f'%{termo}%')))
+            (Product2.despesa_valor.like(f'%{termo}%'))) &
+            (Product2.despesa_deletar != "0")
+            )
+            .order_by(desc(Product2.despesa_data))
         ).scalars()
         return render_template('listar_despesas.html', despesa=resultado)
     else:
-        despesas = db.session.execute(db.select(Product2)).scalars()
+        despesas = db.session.execute(db.select(Product2)
+        .filter(Product2.despesa_deletar == "1")
+        .order_by(desc(Product2.despesa_data))
+        ).scalars()
         return render_template('listar_despesas.html', despesa=despesas)
     
     
@@ -313,40 +350,15 @@ def editar_despesas(id_despesa):
     
 @app.route("/deletar_despesa/<int:id_despesa>")
 def deletar_despesa(id_despesa):
-    despesa_deletado = db.session.execute(db.select(Product2).filter(Product2.id_despesa == id_despesa)).scalar()
-    db.session.delete(despesa_deletado)
+    despesa_deletado = db.session.execute(
+        update(Product2)
+        .where(Product2.id_despesa == id_despesa)
+        .values(despesa_deletar=0)
+        .returning(Product2)
+    ).scalar()
+
     db.session.commit()
     return redirect("/listar_despesas")
-
-
-#Ferramenta para busca de retiradas em uma data específica
-@app.route("/search_r", methods=["GET", "POST"])
-def search_r():
-    if request.method == "POST":
-        start_date = request.form["start_date"]
-        start_date = datetime.strptime(start_date, '%Y-%m-%d')
-        start_date = start_date - timedelta(days=1)
-        end_date = start_date + timedelta(days=1)
-
-        result = Product.query.filter(and_(Product.data_retirada >= start_date, Product.data_retirada < end_date)).all()
-        total_value = db.session.query(func.sum(Product.valor)).filter(and_(Product.data_retirada >= start_date, Product.data_retirada < end_date)).scalar()
-
-        # Converte total_value para Decimal
-        total_value = Decimal(total_value or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-
-        # Converte os valores de valor dos pedidos para Decimal e arredonda
-        for entrega in result:
-            entrega.valor = Decimal(entrega.valor or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-
-        # Formata os valores com ponto para separar os milhares
-        total_value_formatted = '{:,.2f}'.format(total_value)
-        for entrega in result:
-            entrega.valor_formatted = '{:,.2f}'.format(entrega.valor)
-
-        return render_template('result_r.html', show_results=True, results=result, total_value=total_value_formatted,)
-    else:
-        return render_template('search_r.html', show_results=False)
-
 
 
 #Ferramenta para busca de entrega em uma data específica
@@ -358,8 +370,18 @@ def search_e():
         start_date = start_date - timedelta(days=1)
         end_date = start_date + timedelta(days=1)
 
-        result = Product.query.filter(and_(Product.data_entrega >= start_date, Product.data_entrega < end_date)).all()
-        total_value = db.session.query(func.sum(Product.valor)).filter(and_(Product.data_entrega >= start_date, Product.data_entrega < end_date)).scalar()
+        result = Product.query.filter(
+            and_(Product.data_entrega >= start_date, 
+                 Product.data_entrega < end_date,
+                 Product.deletar != "0"
+            )
+        ).all()
+        total_value = db.session.query(func.sum(Product.valor)).filter(
+            and_(Product.data_entrega >= start_date,
+                 Product.data_entrega < end_date,
+                 Product.deletar != "0"
+            )
+        ).scalar()
 
         # Converte total_value para Decimal
         total_value = Decimal(total_value or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
@@ -378,6 +400,47 @@ def search_e():
         return render_template('search_e.html', show_results=False)
 
 
+#Ferramenta para busca de retiradas em uma data específica
+@app.route("/search_r", methods=["GET", "POST"])
+def search_r():
+    if request.method == "POST":
+        start_date = request.form["start_date"]
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        start_date = start_date - timedelta(days=1)
+        end_date = start_date + timedelta(days=1)
+
+        result = Product.query.filter(
+            and_(
+                Product.data_retirada >= start_date,
+                Product.data_retirada < end_date,
+                Product.deletar != "0"
+            )
+        ).all()
+        total_value = db.session.query(func.sum(Product.valor)).filter(
+            and_(
+                Product.data_retirada >= start_date,
+                Product.data_retirada < end_date,
+                Product.deletar != "0"
+            )
+        ).scalar()
+
+        # Converte total_value para Decimal
+        total_value = Decimal(total_value or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+        # Converte os valores de valor dos pedidos para Decimal e arredonda
+        for entrega in result:
+            entrega.valor = Decimal(entrega.valor or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+        # Formata os valores com ponto para separar os milhares
+        total_value_formatted = '{:,.2f}'.format(total_value)
+        for entrega in result:
+            entrega.valor_formatted = '{:,.2f}'.format(entrega.valor)
+
+        return render_template('result_r.html', show_results=True, results=result, total_value=total_value_formatted,)
+    else:
+        return render_template('search_r.html', show_results=False)
+
+
 #Ferramenta para busca de pedidos entre duas datas
 @app.route("/search_p", methods=["GET", "POST"])
 def search_p():
@@ -388,8 +451,19 @@ def search_p():
         start_date = datetime.strptime(start_date, '%Y-%m-%d')
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
         start_date = start_date - timedelta(days=1)
-        result = Product.query.filter(and_(Product.data_pedido >= start_date, Product.data_pedido <= end_date)).all()
-        total_value = db.session.query(func.sum(Product.valor)).filter(and_(Product.data_pedido >= start_date, Product.data_pedido <= end_date)).scalar()
+        result = Product.query.filter(
+            and_(Product.data_pedido >= start_date, 
+                 Product.data_pedido <= end_date,
+                 Product.deletar != "0"
+            )
+        ).order_by(desc(Product.data_pedido)).all()
+        total_value = db.session.query(func.sum(Product.valor)).filter(
+            and_(
+                Product.data_pedido >= start_date, 
+                Product.data_pedido <= end_date,
+                Product.deletar != "0"
+            )
+        ).scalar()
 
         # Converte total_value para Decimal
         total_value = Decimal(total_value or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
@@ -409,7 +483,6 @@ def search_p():
         return render_template('search_p.html', show_results=False)
 
     
-
 #Ferramenta para busca de despesas entre duas datas
 @app.route("/search_d", methods=["GET", "POST"])
 def search_d():
@@ -420,8 +493,20 @@ def search_d():
         start_date = datetime.strptime(start_date, '%Y-%m-%d')
         end_date = datetime.strptime(end_date, '%Y-%m-%d')
         start_date = start_date - timedelta(days=1)
-        result = Product2.query.filter(and_(Product2.despesa_data >= start_date, Product2.despesa_data <= end_date)).all()
-        total_value = db.session.query(func.sum(Product2.despesa_valor)).filter(and_(Product2.despesa_data >= start_date, Product2.despesa_data <= end_date)).scalar()
+        result = Product2.query.filter(
+            and_(
+            Product2.despesa_data >= start_date, 
+            Product2.despesa_data <= end_date, 
+            Product2.despesa_deletar != "0"
+            )
+        ).order_by(desc(Product2.despesa_data)).all()
+        total_value = db.session.query(func.sum(Product2.despesa_valor)).filter(
+            and_(
+                Product2.despesa_data >= start_date,
+                  Product2.despesa_data <= end_date,
+                  Product2.despesa_deletar != "0"
+            )
+        ).scalar()
 
         # Converte total_value para Decimal
         total_value = Decimal(total_value or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)

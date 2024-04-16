@@ -6,7 +6,7 @@
   <h1>Login</h1>
   <hr>
   <br><br>
-  <form action="{{url_for('login')}}" method="post">
+  <form action="{{url_for( 'login') }}" method="post">
     <div class="row g-3 align-items-center">
       <div class="col-auto">
         <label for="username" class="col-form-label">Nome:</label>
@@ -23,7 +23,7 @@
       <div class="col-auto">
         <input type="password" name="password" class="form-control" aria-describedby="passwordHelpInline">
       </div>
-      </div>
+      
     </div>
     <br>
     <input type="submit" class="btn btn-primary" value="Enviar">
