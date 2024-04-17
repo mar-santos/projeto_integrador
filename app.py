@@ -12,6 +12,7 @@ from flask import session
 from datetime import datetime
 from datetime import timedelta
 from decimal import Decimal, ROUND_HALF_UP
+from flask import jsonify
 
 app = Flask(__name__)
 app.secret_key = 'b175855202d537a1b07a1cbbee8ffc197e2af9c5289a6adfd4b4aa63c3f77861'
@@ -192,7 +193,7 @@ def cadastrar_pedido():
 @app.route("/calculadora", methods=['GET', 'POST'])
 def calculadora():
     if request.method == "POST":
-
+    
         valor_final = 0.00
 
         quadrado = request.form['formato_tapete']
