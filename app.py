@@ -285,16 +285,12 @@ def editar_pedido(id_pedido):
 
 @app.route("/deletar_pedido/<int:id_pedido>")
 def deletar_pedido(id_pedido):
-    pedido_atualizado = db.session.execute(
-        update(Product)
-        .where(Product.id_pedido == id_pedido)
-        .values(deletar=0)
-        .returning(Product)
-    ).scalar()
-    
-    db.session.commit()
+    pedido = Product.query.get(id_pedido)
+    if pedido:
+        pedido.deletar = "0"
+        db.session.commit()
     return redirect("/listar_pedidos")
-
+    
 
 # Definição das rotas dinâmicas. CRUD de despesas
 @app.route("/cadastrar_despesas", methods=["GET", "POST"])
@@ -362,14 +358,10 @@ def editar_despesas(id_despesa):
     
 @app.route("/deletar_despesa/<int:id_despesa>")
 def deletar_despesa(id_despesa):
-    despesa_deletado = db.session.execute(
-        update(Product2)
-        .where(Product2.id_despesa == id_despesa)
-        .values(despesa_deletar=0)
-        .returning(Product2)
-    ).scalar()
-
-    db.session.commit()
+    despesa = Product2.query.get(id_despesa)
+    if despesa:
+        despesa.despesa_deletar = "0"
+        db.session.commit()
     return redirect("/listar_despesas")
 
 
@@ -547,4 +539,4 @@ def logout():
 if __name__ == "__main__":
     with app.app_context():
         #db.create_all() # Criação do BD caso o mesmo não exista
-        app.run(debug=False)
+        app.run(debug=True)
