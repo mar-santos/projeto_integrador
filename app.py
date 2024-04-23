@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
 from sqlalchemy import and_
 from sqlalchemy import or_
 from sqlalchemy import func
@@ -16,9 +17,15 @@ from flask import jsonify
 
 app = Flask(__name__)
 app.secret_key = 'b175855202d537a1b07a1cbbee8ffc197e2af9c5289a6adfd4b4aa63c3f77861'
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqlconnector://root:admin@localhost:3306/tapete"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db = SQLAlchemy(app)
+
+'''app = Flask(__name__)
+app.secret_key = 'b175855202d537a1b07a1cbbee8ffc197e2af9c5289a6adfd4b4aa63c3f77861'
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tapete.db" #Associar ao banco de dados tapete.bd
 db = SQLAlchemy()
-db.init_app(app)
+db.init_app(app)'''
 
 
 # Inicializar Classe e criar as tabelas pedido e despesas
@@ -34,6 +41,7 @@ class Product(db.Model):
     cidade = db.Column(db.String(50))
     telefone = db.Column(db.String(100), nullable=False)
     servico = db.Column(db.String(100))
+    desconto = db.Column(db.String(30))
     valor = db.Column(db.String(30))
     status = db.Column(db.String(30))
     deletar = db.Column(db.String(5))
@@ -47,7 +55,8 @@ def __init__(self,
              endereco: str,
              cidade: str,
              telefone: str, 
-             servico: str, 
+             servico: str,
+             desconto: str, 
              valor: str,
              status: str,
              deletar: str) -> None:
@@ -61,6 +70,7 @@ def __init__(self,
     self.cidade = cidade
     self.telefone = telefone
     self.servico = servico
+    self.desconto = desconto
     self.valor = valor
     self.status = status
     self.deletar = deletar
@@ -125,7 +135,8 @@ def erro_pagina_403():
 
 # Login e senha do administrador
 credenciais_usuarios = {
-    "admin": "admin"
+    "renata": "17gatos",
+    "mario": "17gatos"
 }
 
 
@@ -535,5 +546,5 @@ def logout():
 
 if __name__ == "__main__":
     with app.app_context():
-        db.create_all() # Criação do BD caso o mesmo não exista
-        app.run(debug=True)
+        #db.create_all() # Criação do BD caso o mesmo não exista
+        app.run(debug=False)
