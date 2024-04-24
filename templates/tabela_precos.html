@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block restrito %}
+
+{% endblock %}
+
+{% block main %}
+<div class="container">
+    <br>
+    <div class="">
+        <h1>Cadastrar novo valor por metro quadrado</h1>
+    </div>
+    <hr>
+    <form action="{{url_for('tabela_precos')}}" class="form-control" method="post">
+        <div class="row">
+            <div class="col-md-2">
+                <div class="mb-2">
+                    <label for="exampleFormControlInput1" class="form-label">Data: </label>
+                    <input type="date" class="form-control" name="data" placeholder="dia/mês/ano" required>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-4">
+                    <label for="exampleFormControlInput1" class="form-label">Valor por metro quadrado: </label>
+                    <input type="text" class="form-control" name="valor_metro" placeholder="R$">
+                </div>
+            </div>
+        <br><br>
+        <div class="form-check form-check-inline">
+            <input type="submit" class="btn btn-primary" name="cadastrar" value="Cadastrar valor">
+            <button class="btn btn-primary" onclick="window.location.href='/cadastrar_pedido'">Cadastrar pedido</button>
+        </div>
+    </form>
+</div>
+<br>
+{% if status %}
+    <h2>Valor atual do metro quadrado: {{ status.valor_metro }}</h2>
+{% endif %}
+
+<br>
+
+{% if status %}
+{% if status['type'] == 'sucesso' %}
+<div class="alert alert-success" role="alert">
+    {{status['message']}}
+</div>
+{% else %}
+<div class="alert alert-danger" role="alert">
+    {{status['message']}}
+</div>
+{% endif %}
+{% endif %}
+
+<!--Troca "," por "." nas entradas do campo valor ao gravar no Banco de Dados-->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelector('form').addEventListener('submit', function () {
+            var valorInput = document.querySelector('input[name="valor_metro"]');
+            valorInput.value = valorInput.value.replace(',', '.');
+        });
+    });
+</script>
+{% endblock %}

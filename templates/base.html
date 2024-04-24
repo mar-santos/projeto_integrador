@@ -39,6 +39,9 @@
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="{{ url_for('login') }}">Login</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{{ url_for('calculadora') }}">Calculadora</a>
+            </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                 aria-expanded="false">
@@ -69,6 +72,8 @@
                 <li><a class="dropdown-item" href="{{ url_for('search_r') }}">Retiradas</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('search_p') }}">Pedidos</a></li>
                 <li><a class="dropdown-item" href="{{ url_for('search_d') }}">Despesas</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{{ url_for('tabela_precos' )}}">Tabela de preços</a></li>
               </ul>
             </li>
             <li class="nav-item">

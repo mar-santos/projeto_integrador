@@ -32,6 +32,7 @@
                 <th>Cidade</th>
                 <th>Telefone</th>
                 <th>Serviço</th>
+                <th>Desconto</th>
                 <th>Valor</th>
                 <th>Editar</th>
                 <th>Apagar</th>
@@ -51,6 +52,7 @@
                 <td>{{ pedido.cidade }}</td>
                 <td>{{ pedido.telefone }}</td>
                 <td>{{ pedido.servico }}</td>
+                <td>{{ pedido.desconto }}</td>
                 <td>{{ pedido.valor }}</td>
                 <td><a href="{{ url_for('editar_pedido', id_pedido=pedido.id_pedido)}}"
                         class="btn btn-secondary btn-sm">Editar</a>

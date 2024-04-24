@@ -21,12 +21,6 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqlconnector://root:admin@local
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
-'''app = Flask(__name__)
-app.secret_key = 'b175855202d537a1b07a1cbbee8ffc197e2af9c5289a6adfd4b4aa63c3f77861'
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tapete.db" #Associar ao banco de dados tapete.bd
-db = SQLAlchemy()
-db.init_app(app)'''
-
 
 # Inicializar Classe e criar as tabelas pedido e despesas
 class Product(db.Model):
@@ -98,6 +92,21 @@ def __init__(self,
     self.despesa.deletar = despesa_deletar
 
 
+class Product3(db.Model):
+    __tablename__ = "preco"
+    id_preco = db.Column(db.Float, primary_key=True)
+    data = db.Column(db.String(30))
+    valor_metro = db.Column(db.Float)
+
+def __init__(self,
+                data: str,
+                valor_metro: float) -> None:
+    
+    self.data = data
+    self.valor_metro = valor_metro
+    
+
+
 # Definição das rotas estáticas
 @app.route("/")
 def home():
@@ -158,14 +167,16 @@ def login():
 
 @app.before_request
 def verificar_autenticacao():
-    endpoints_protegidos = ["/cadastrar_pedido", 
+    endpoints_protegidos = ["/calculadora",
+                            "/cadastrar_pedido", 
                             "/listar_pedidos", 
                             "/cadastrar_despesas", 
                             "/listar_despesas",
                             "/search_e",
                             "/search_p",
                             "/search_r",
-                            "/search_d",]
+                            "/search_d",
+                            "/tabela_precos",]
     if request.path in endpoints_protegidos:
         if not session.get('logged_in'):
             return redirect("/erro_pagina_403")
@@ -188,6 +199,7 @@ def cadastrar_pedido():
                 cidade=dados["cidade"],
                 telefone=dados["telefone"],
                 servico=dados["servico"],
+                desconto=dados["desconto"],
                 valor=(dados["valor"]),
                 status=(dados["status"]),
                 deletar=(dados["deletar"])
@@ -204,7 +216,6 @@ def cadastrar_pedido():
 @app.route("/calculadora", methods=['GET', 'POST'])
 def calculadora():
     if request.method == "POST":
-    
         valor_final = 0.00
 
         quadrado = request.form['formato_tapete']
@@ -212,12 +223,14 @@ def calculadora():
         if (quadrado == 'True'):
             largura_tapete = float(request.form['largura_tapete'])
             altura_tapete = float(request.form['altura_tapete'])
-            valor_tapete = (largura_tapete * altura_tapete) * 25.00
+            preco_metro = Product3.query.order_by(Product3.id_preco.desc()).first().valor_metro  # Consulta o valor do metro na tabela Product3 preco
+            valor_tapete = (largura_tapete * altura_tapete) * preco_metro
             valor_final += valor_tapete
         else:
             largura_tapete = float(request.form['largura_tapete'])
             altura_tapete = float(request.form['altura_tapete'])
-            valor_tapete = (3.14 * ((largura_tapete/2) * (largura_tapete/2))) * 25.00
+            preco_metro = Product3.query.order_by(Product3.id_preco.desc()).first().valor_metro   # Consulta o valor do metro na tabela Product3 preco
+            valor_tapete = (3.14 * ((largura_tapete/2) * (largura_tapete/2))) * preco_metro
             valor_final += valor_tapete
 
         return render_template("calculadora.html", valor_final = round(valor_final,2))
@@ -241,6 +254,7 @@ def listar_pedidos():
                  (Product.cidade.like(f'%{termo}%')) |
                  (Product.telefone.like(f'%{termo}%')) |
                  (Product.servico.like(f'%{termo}%')) |
+                 (Product.desconto.like(f'%{termo}%')) |
                  (Product.valor.like(f'%{termo}%')) |
                  (Product.status.like(f'%{termo}%'))) &
                 (Product.deletar != "0")
@@ -272,6 +286,7 @@ def editar_pedido(id_pedido):
         pedido.cidade = dados_editados["cidade"]
         pedido.telefone = dados_editados["telefone"]
         pedido.servico = dados_editados["servico"]
+        pedido.desconto = dados_editados["desconto"]
         pedido.valor = dados_editados["valor"]
         pedido.status = dados_editados["status"]
 
@@ -461,6 +476,14 @@ def search_p():
                  Product.deletar != "0"
             )
         ).order_by(desc(Product.data_pedido)).all()
+
+        # Soma dos descontos
+        total_desconto = sum([Decimal(pedido.desconto or 0).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) for pedido in result])
+
+        # Converte total_desconto para string formatada
+        total_desconto_formatted = '{:,.2f}'.format(total_desconto)
+
+        # Total do valor dos produtos
         total_value = db.session.query(func.sum(Product.valor)).filter(
             and_(
                 Product.data_pedido >= start_date, 
@@ -481,7 +504,7 @@ def search_p():
         for pedido in result:
             pedido.valor_formatted = '{:,.2f}'.format(pedido.valor)
 
-        return render_template('result_p.html', show_results=True, results=result, total_value=total_value_formatted)
+        return render_template('result_p.html', show_results=True, results=result, total_value=total_value_formatted, total_desconto=total_desconto_formatted)
 
     else:
         return render_template('search_p.html', show_results=False)
@@ -528,6 +551,41 @@ def search_d():
         
     else:
         return render_template('search_d.html', show_results=False)
+    
+@app.route("/tabela_precos", methods=['GET', 'POST'])
+def tabela_precos():
+    if request.method == "POST":
+        status = {"type": "sucesso", "message": "Novo valor por metro quadrado cadastrado com sucesso!"}
+        try:
+            dados = request.form
+            pedido = Product3(
+                data=dados["data"],
+                valor_metro=dados["valor_metro"],
+            )
+            db.session.add(pedido)
+            db.session.commit()
+            status["valor_metro"] = Product3.query.order_by(Product3.id_preco.desc()).first().valor_metro  # Consulta o valor_metro mais recente
+            return render_template("tabela_precos.html", status=status)
+        except:
+            status = {"type": "erro", "message": f"Houve um problema ao cadastrar o novo valor!"}
+            return render_template("tabela_precos.html", status=status)
+    else:
+        return render_template("tabela_precos.html")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @app.route('/logout')

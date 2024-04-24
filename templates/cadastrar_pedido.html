@@ -71,6 +71,12 @@
             </div>
             <div class="col-md-4">
                 <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label">Desconto: </label>
+                    <input type="text" class="form-control" name="desconto" placeholder="">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="mb-3">
                     <label for="exampleFormControlInput1" class="form-label">Valor: </label>
                     <input type="text" class="form-control" name="valor" placeholder="">
                 </div>
@@ -95,7 +101,7 @@
         </div>
         <br><br>
         <input type="submit" class="btn btn-primary" name="cadastrar" value="Cadastrar Pedido">
-        <button class="btn btn-primary" onclick="window.location.href='/calculadora'">Orçamento</button>
+        <button class="btn btn-primary" onclick="window.location.href='/calculadora'">Calculadora</button>
     </form>
 </div>
 <br>
@@ -116,6 +122,15 @@
     document.addEventListener('DOMContentLoaded', function () {
         document.querySelector('form').addEventListener('submit', function () {
             var valorInput = document.querySelector('input[name="valor"]');
+            valorInput.value = valorInput.value.replace(',', '.');
+        });
+    });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelector('form').addEventListener('submit', function () {
+            var valorInput = document.querySelector('input[name="desconto"]');
             valorInput.value = valorInput.value.replace(',', '.');
         });
     });
