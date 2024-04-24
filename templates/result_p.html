@@ -17,6 +17,7 @@
             <th>Cidade</th>
             <th>Telefone</th>
             <th>Serviço</th>
+            <th>Desconto</th>
             <th>Valor</th>
         </tr>
         {% for pedido in results %}
@@ -32,11 +33,13 @@
             <td>{{ pedido.cidade }}</td>
             <td>{{ pedido.telefone }}</td>
             <td>{{ pedido.servico }}</td>
+            <td>{{ pedido.desconto }}</td>
             <td>{{ pedido.valor }}</td>
         </tr>
         {% endfor %}
         <tr>
             <td colspan="9"><strong>Total</strong></td>
+            <td><strong>{{ total_desconto }}</strong></td>
             <td><strong>{{ total_value }}</strong></td>
         </tr>
     </table>
