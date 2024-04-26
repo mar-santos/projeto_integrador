@@ -17,7 +17,7 @@ from flask import jsonify
 
 app = Flask(__name__)
 app.secret_key = 'b175855202d537a1b07a1cbbee8ffc197e2af9c5289a6adfd4b4aa63c3f77861'
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqlconnector://root:admin@localhost:3306/tapete"
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+mysqlconnector://root:!Personal@216.144.241.102:3306/tapete"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
@@ -96,7 +96,7 @@ class Product3(db.Model):
     __tablename__ = "preco"
     id_preco = db.Column(db.Float, primary_key=True)
     data = db.Column(db.String(30))
-    valor_metro = db.Column(db.Float)
+    valor_metro = db.Column(db.Float, nullable=False)
 
 def __init__(self,
                 data: str,
@@ -144,8 +144,8 @@ def erro_pagina_403():
 
 # Login e senha do administrador
 credenciais_usuarios = {
-    "renata": "17gatos",
-    "mario": "17gatos"
+    "renata": "XXXXX",
+    "mario": "XXXXX"
 }
 
 
