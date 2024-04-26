@@ -45,5 +45,11 @@
     </table>
     <br>
     <button class="btn btn-primary" onclick="window.location.href='/search_p'">Nova pesquisa</button>
+    <br><br>
+    <div>
+        {% if valor_final is not none %}
+    <h2>Valor líquido: R$ {{ valor_final }}</h2>
+    {% endif %}
+    </div>
 </div>
 {% endblock %}

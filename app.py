@@ -504,7 +504,10 @@ def search_p():
         for pedido in result:
             pedido.valor_formatted = '{:,.2f}'.format(pedido.valor)
 
-        return render_template('result_p.html', show_results=True, results=result, total_value=total_value_formatted, total_desconto=total_desconto_formatted)
+        valor_final = total_value - total_desconto
+        valor_final_formatted = '{:,.2f}'.format(valor_final)
+
+        return render_template('result_p.html', show_results=True, results=result, total_value=total_value_formatted, total_desconto=total_desconto_formatted, valor_final=valor_final_formatted)
 
     else:
         return render_template('search_p.html', show_results=False)
@@ -571,21 +574,6 @@ def tabela_precos():
             return render_template("tabela_precos.html", status=status)
     else:
         return render_template("tabela_precos.html")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 @app.route('/logout')
